@@ -1,10 +1,8 @@
 fun main() {
     println("Day 8 - Result:")
     val input = readInput("Day8")
-    val partOne = Day8.partOne(input)
-    println("Part one: $partOne")
-    val partTwo = Day8.partTwo(input)
-    println("Part two: $partTwo")
+    println("Part one: ${Day8.partOne(input)}")
+    println("Part two: ${Day8.partTwo(input)}")
 }
 
 object Day8 {
@@ -16,7 +14,7 @@ object Day8 {
             .map { it.filter { digits -> digits.isNotBlank() }.map { digits -> digits.length } }
 
         val uniqueNumbers = listOf(2, 3, 7, 4)
-        return digits.map { it.count { digit -> uniqueNumbers.contains(digit) } }.sum()
+        return digits.sumOf { it.count { digit -> uniqueNumbers.contains(digit) } }
     }
 
     fun partTwo(input: List<String>): Number {
@@ -29,27 +27,29 @@ object Day8 {
 
         var totalOutputValue = 0
         digitInput.forEach { digits ->
-            val fourDigitValue = Array(10) { "" }
-            fourDigitValue[1] = digits.first().first { it.length == 2 }
-            fourDigitValue[8] = digits.first().first { it.length == 7 }
-            fourDigitValue[4] = digits.first().first { it.length == 4 }
-            fourDigitValue[7] = digits.first().first { it.length == 3 }
-            val fiveChars = digits.first().filter { it.length == 5 }
-            val sixChars = digits.first().filter { it.length == 6 }
+            val fourDigitValue = mutableMapOf<Int, String>()
+            val entryValue = digits.first()
+            fourDigitValue[1] = entryValue.single { it.length == 2 }
+            fourDigitValue[8] = entryValue.single { it.length == 7 }
+            fourDigitValue[4] = entryValue.single { it.length == 4 }
+            fourDigitValue[7] = entryValue.single { it.length == 3 }
+            val fiveChars = entryValue.filter { it.length == 5 }
+            val sixChars = entryValue.filter { it.length == 6 }
 
-            fourDigitValue[3] = fiveChars.first { equalLineAmount(it, fourDigitValue[7]) == 3 }
-            fourDigitValue[9] = sixChars.first { equalLineAmount(it, fourDigitValue[3]) == 5 }
-            fourDigitValue[0] = sixChars.first { it != fourDigitValue[9] && equalLineAmount(it, fourDigitValue[7]) == 3 }
-            fourDigitValue[6] = sixChars.first { it != fourDigitValue[0] && it != fourDigitValue[9] }
-            fourDigitValue[5] = fiveChars.first { equalLineAmount(it, fourDigitValue[9]) == 5 && it != fourDigitValue[3] }
-            fourDigitValue[2] = fiveChars.first { it != fourDigitValue[3] && it != fourDigitValue[5] }
+            fourDigitValue[3] = fiveChars.single { equalLineAmount(it, fourDigitValue[7]!!) == 3 }
+            fourDigitValue[9] = sixChars.single { equalLineAmount(it, fourDigitValue[3]!!) == 5 }
+            fourDigitValue[0] =
+                sixChars.single { it != fourDigitValue[9] && equalLineAmount(it, fourDigitValue[7]!!) == 3 }
+            fourDigitValue[6] = sixChars.single { it != fourDigitValue[0] && it != fourDigitValue[9] }
+            fourDigitValue[5] =
+                fiveChars.single { equalLineAmount(it, fourDigitValue[9]!!) == 5 && it != fourDigitValue[3] }
+            fourDigitValue[2] = fiveChars.single { it != fourDigitValue[3] && it != fourDigitValue[5] }
 
             var output = ""
             digits.last().map { digit ->
                 for (i in 0..9) {
-                    if (fourDigitValue[i].alphabetized() == digit.alphabetized()) {
+                    if (fourDigitValue[i]!!.alphabetized() == digit.alphabetized()) {
                         output += i.toString()
-                        break
                     }
                 }
             }
